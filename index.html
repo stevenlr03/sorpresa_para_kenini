@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Carta 14 Febrero</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&display=swap');
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #ffcad4, #ff9eb5, #ff6f91);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#pantallaInicial {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#pantallaInicial.oculto {
+  opacity: 0;
+  transform: scale(1.1);
+  pointer-events: none;
+}
+
+.sobre-wrapper {
+  position: relative;
+  width: 280px;
+  height: 180px;
+  cursor: pointer;
+  perspective: 1200px;
+  transition: transform 0.3s ease;
+}
+
+.sobre-wrapper:hover { transform: translateY(-5px); }
+
+.sobre-back {
+  position: absolute; width: 100%; height: 100%;
+  background: #d896a8; border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3); z-index: 0;
+}
+
+.carta-adentro {
+  position: absolute; bottom: 5px; left: 10px;
+  width: 260px; height: 160px; background: #fff;
+  border-radius: 8px; z-index: 2; display: flex;
+  justify-content: center; align-items: flex-start;
+  padding-top: 30px; box-sizing: border-box;
+  font-family: 'Dancing Script', cursive;
+  font-size: 28px; color: #ff1e56;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  transform: translateY(0);
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.6s; 
+}
+
+.sobre-flaps {
+  position: absolute; width: 100%; height: 100%;
+  border-radius: 10px; overflow: hidden; z-index: 3;
+}
+
+.flap-left {
+  position: absolute; left: 0; top: 0;
+  width: 55%; height: 100%; background: #ff85a1;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  filter: drop-shadow(3px 0 4px rgba(0,0,0,0.15));
+}
+
+.flap-right {
+  position: absolute; right: 0; top: 0;
+  width: 55%; height: 100%; background: #ff6f91;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+  filter: drop-shadow(-3px 0 4px rgba(0,0,0,0.15));
+}
+
+.flap-bottom {
+  position: absolute; bottom: 0; left: 0;
+  width: 100%; height: 65%; background: #ff4d6d;
+  clip-path: polygon(0 100%, 50% 0, 100% 100%);
+  filter: drop-shadow(0 -3px 5px rgba(0,0,0,0.25));
+}
+
+.sobre-top-flap {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 70%; transform-origin: top;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease-in-out, z-index 0s 0.3s;
+  z-index: 4; filter: drop-shadow(0 5px 6px rgba(0,0,0,0.3));
+}
+
+.flap-outer, .flap-inner {
+  position: absolute; width: 100%; height: 100%;
+  backface-visibility: hidden; clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.flap-outer { background: #ff1e56; }
+.flap-inner { background: #ffb3c6; transform: rotateY(180deg); }
+
+.sello {
+  position: absolute; left: 50%; bottom: 15px;
+  transform: translateX(-50%); font-size: 35px;
+  color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.sobre-wrapper.abierto .sobre-top-flap { transform: rotateX(180deg); z-index: 1; }
+.sobre-wrapper.abierto .carta-adentro { transform: translateY(-70px); }
+
+button {
+  margin-top: 50px; padding: 15px 40px; border: none;
+  border-radius: 40px; background: linear-gradient(45deg, #ff1e56, #ff4d6d, #ff85a1);
+  color: white; font-size: 20px; cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,0,100,.5), 0 8px 25px rgba(0,0,0,.3);
+  transition: .3s; z-index: 5;
+}
+button:hover { transform: scale(1.1); }
+
+/* =========================================
+   PANTALLA CARTA (LIBRO 3D)
+   ========================================= */
+#pantallaCarta {
+  display: none; position: absolute; z-index: 3;
+  width: 90vw; max-width: 900px; height: 85vh; max-height: 600px;
+  perspective: 2000px;
+}
+
+.libro {
+  width: 100%; height: 100%; display: flex; flex-direction: row;
+  background: linear-gradient(145deg, #fff0f5, #ffe6f0);
+  border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,.4);
+  transform-style: preserve-3d; transform: rotateY(-90deg) scale(0.9);
+  transform-origin: left center;
+  transition: transform 1.2s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 1.2s ease;
+  opacity: 0; overflow: hidden;
+}
+
+.libro.abierto { transform: rotateY(0deg) scale(1); opacity: 1; }
+
+.pagina { width: 50%; height: 100%; padding: 30px; box-sizing: border-box; position: relative; }
+.izquierda { border-right: 2px solid #ffc2d1; font-family: 'Dancing Script', cursive; overflow-y: auto; }
+.izquierda::-webkit-scrollbar { width: 6px; }
+.izquierda::-webkit-scrollbar-track { background: transparent; }
+.izquierda::-webkit-scrollbar-thumb { background: #ff9eb5; border-radius: 10px; }
+
+.derecha { display: flex; justify-content: center; align-items: center; padding: 0; }
+
+h1 { color: #ff1e56; text-align: center; font-size: 32px; margin-top: 0; margin-bottom: 15px; line-height: 1.1; }
+p { font-size: 22px; color: #555; margin-top: 0; line-height: 1.3; }
+
+canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+#heartCanvas { position: relative; width: 100%; height: 100%; pointer-events: none; }
+
+@media (max-width: 768px) {
+  #pantallaCarta { width: 92vw; height: 90vh; max-height: none; }
+  .libro { flex-direction: column; transform: translateY(50px) scale(0.95); transform-origin: center; }
+  .libro.abierto { transform: translateY(0) scale(1); }
+  .pagina { width: 100%; height: 50%; }
+  .izquierda { border-right: none; border-bottom: 2px dashed #ffc2d1; padding: 25px 20px; }
+  h1 { font-size: 28px; }
+  p { font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div id="pantallaInicial">
+  <div class="sobre-wrapper" id="sobre">
+    <div class="sobre-back"></div>
+    <div class="carta-adentro"><span>Para ti... ✨</span></div>
+    <div class="sobre-flaps">
+      <div class="flap-left"></div><div class="flap-right"></div><div class="flap-bottom"></div>
+    </div>
+    <div class="sobre-top-flap">
+      <div class="flap-inner"></div><div class="flap-outer"><div class="sello">❤</div></div>
+    </div>
+  </div>
+  <button id="abrir">Descubrir 💌</button>
+</div>
+
+<div id="pantallaCarta">
+  <div class="libro" id="libro">
+    <div class="pagina izquierda" id="hojaIzquierda">
+      <h1 id="tituloCarta"></h1>
+      <p id="mensajeCarta"></p>
+    </div>
+    <div class="pagina derecha" id="hojaDerecha">
+      <canvas id="heartCanvas"></canvas>
+    </div>
+  </div>
+</div>
+
+<canvas id="floresCanvas"></canvas>
+
+<script>
+// ===== SISTEMA DE FLORES OPTIMIZADO (SPRITE CACHING PARA CERO LAG) =====
+const canvasFlores = document.getElementById("floresCanvas");
+const ctxFlores = canvasFlores.getContext("2d");
+
+function redimensionarFondo() { canvasFlores.width = window.innerWidth; canvasFlores.height = window.innerHeight; }
+window.addEventListener('resize', redimensionarFondo); redimensionarFondo();
+
+let flores = [];
+const colores = [{r: 220, g: 20, b: 60}, {r: 255, g: 105, b: 180}, {r: 255, g: 182, b: 193}, {r: 255, g: 240, b: 245}, {r: 199, g: 21, b: 133}];
+
+class Flor {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.size = 45 + Math.random()*40;
+    this.baseColorRGB = colores[Math.floor(Math.random()*colores.length)];
+    this.angle = Math.random()*360;
+    this.speed = 0.0005 + Math.random()*0.001;
+    this.petalVariance = Math.random() * 0.5;
+    // Pre-renderizamos la flor UNA SOLA VEZ para no saturar el celular
+    this.sprite = this.crearSprite();
+  }
+
+  crearSprite() {
+    const buffer = document.createElement('canvas');
+    const padding = 40; // Espacio seguro para las sombras
+    buffer.width = this.size * 2 + padding;
+    buffer.height = this.size * 2 + padding;
+    const bCtx = buffer.getContext('2d');
+    bCtx.translate(buffer.width/2, buffer.height/2);
+
+    const {r, g, b} = this.baseColorRGB;
+    for (let i = 4; i > 0; i--) {
+        bCtx.beginPath();
+        const layerSize = this.size * (i / 4); 
+        const gradient = bCtx.createRadialGradient(0, 0, 0, 0, 0, layerSize);
+        gradient.addColorStop(0, `rgba(${r}, ${g-30}, ${b-30}, ${0.7 - i*0.1})`);
+        gradient.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, ${0.5 - i*0.1})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, 0.1)`);
+        bCtx.fillStyle = gradient;
+        const steps = 12; bCtx.moveTo(layerSize + Math.random()*5, 0);
+        for(let j = 1; j <= steps; j++) {
+            const angle = (j / steps) * Math.PI * 2;
+            const variance = Math.sin(angle * (3 + this.petalVariance)) * 5;
+            const radius = layerSize + variance + Math.random()*2;
+            bCtx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+        }
+        bCtx.closePath();
+        bCtx.shadowColor = `rgba(${r-50}, ${g-50}, ${b-50}, 0.2)`; bCtx.shadowBlur = 10;
+        bCtx.fill(); bCtx.shadowBlur = 0; bCtx.rotate(Math.PI / 8);
+    }
+    bCtx.beginPath();
+    const centerGrad = bCtx.createRadialGradient(0,0,0, 0,0,this.size/5);
+    centerGrad.addColorStop(0, 'rgba(255, 255, 220, 0.8)'); centerGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+    bCtx.fillStyle = centerGrad; bCtx.arc(0, 0, this.size/5, 0, Math.PI*2); bCtx.fill();
+    return buffer;
+  }
+
+  draw() {
+    // Dibujo ultrarrápido sin cálculos de gradientes
+    ctxFlores.save();
+    ctxFlores.translate(this.x, this.y);
+    ctxFlores.rotate(this.angle);
+    ctxFlores.drawImage(this.sprite, -this.sprite.width/2, -this.sprite.height/2);
+    ctxFlores.restore();
+  }
+  update(){ this.angle += this.speed; this.y += Math.sin(this.angle)*0.15; }
+}
+
+function crearFlores(){ flores=[]; const cantidad = window.innerWidth < 768 ? 15 : 30; for(let i=0;i<cantidad;i++) flores.push(new Flor(Math.random()*canvasFlores.width, Math.random()*canvasFlores.height)); }
+function animarFlores(){ ctxFlores.clearRect(0,0,canvasFlores.width,canvasFlores.height); flores.forEach(f=>{f.update();f.draw();}); requestAnimationFrame(animarFlores); }
+crearFlores(); animarFlores();
+
+// ===== CORAZÓN DINÁMICO (OPTIMIZADO) =====
+const heartCanvas = document.getElementById('heartCanvas');
+const ctxHeart = heartCanvas.getContext('2d', { alpha:true }); 
+
+const petals = [];
+const colorsPetalos = ['#FF0000','#FFC0CB','#FFFFFF','#FF00FF','#E6E6FA'];
+let fillProgress = 0;
+
+function createPetalSprite(size,color1,color2){
+  const buffer=document.createElement('canvas'); const padding=10; buffer.width=size*2+padding; buffer.height=size*2+padding;
+  const bCtx=buffer.getContext('2d'); bCtx.translate(buffer.width/2,buffer.height/2);
+  const gradient=bCtx.createRadialGradient(0,0,0,0,0,size);
+  gradient.addColorStop(0,color1); gradient.addColorStop(1,color2);
+  bCtx.fillStyle=gradient; bCtx.shadowColor="rgba(0,0,0,0.3)"; bCtx.shadowBlur=3; bCtx.shadowOffsetX=1; bCtx.shadowOffsetY=1;
+  bCtx.beginPath(); bCtx.moveTo(0,-size); bCtx.bezierCurveTo(size*0.5,-size,size*0.5,size,0,size); bCtx.bezierCurveTo(-size*0.5,size,-size*0.5,-size,0,-size); bCtx.fill();
+  return buffer;
+}
+
+function heartShape(t, r){
+  const minSize = Math.min(heartCanvas.width, heartCanvas.height); const scale = minSize / 42; 
+  const x = 16 * Math.pow(Math.sin(t), 3); const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+  return { x: heartCanvas.width/2 + (x * scale * r), y: heartCanvas.height/2 - (y * scale * r) - (minSize * 0.03) };
+}
+
+function generatePetals(count){
+  petals.length=0; const attempts=count*15;
+  for(let i=0;i<attempts;i++){
+    const t = Math.random() * Math.PI * 2; const r = Math.sqrt(Math.random()) * 0.95 + 0.05; 
+    const pos = heartShape(t, r);
+    const color1 = colorsPetalos[Math.floor(Math.random()*colorsPetalos.length)]; const color2 = colorsPetalos[Math.floor(Math.random()*colorsPetalos.length)];
+    const size = Math.random() * 12 + 8; const sprite = createPetalSprite(size,color1,color2);
+    petals.push({ x: pos.x + (Math.random()-0.5)*100, y: pos.y + Math.random()*200+100, targetX: pos.x, targetY: pos.y, sprite, width:sprite.width, height:sprite.height, rotation: Math.random()*Math.PI*2, rotationSpeed: (Math.random()-0.5)*0.015, depth: Math.random()*0.5+0.75 });
+    if(petals.length>=count) break;
+  }
+}
+
+function drawPetal(p){ ctxHeart.save(); ctxHeart.translate(p.x,p.y); ctxHeart.rotate(p.rotation); ctxHeart.scale(p.depth,p.depth); ctxHeart.drawImage(p.sprite,-p.width/2,-p.height/2); ctxHeart.restore(); }
+
+function animateHeart(){
+  ctxHeart.clearRect(0,0,heartCanvas.width,heartCanvas.height);
+  for(let i=0;i<petals.length;i++){
+    const p=petals[i]; p.y += (p.targetY-p.y)*0.07*fillProgress; p.x += (p.targetX-p.x)*0.07*fillProgress; p.rotation += p.rotationSpeed; drawPetal(p);
+  }
+  if(fillProgress<1) fillProgress+=0.005;
+  requestAnimationFrame(animateHeart);
+}
+
+// ===== EFECTO DE ESCRITURA =====
+function efectoEscritura(elemento, texto, velocidad, callback) {
+  let i = 0; elemento.innerHTML = ""; const contenedorFondo = document.getElementById('hojaIzquierda');
+  function escribir() {
+    if (i < texto.length) {
+      if (texto.charAt(i) === '|') { elemento.innerHTML += "<br>"; } else { elemento.innerHTML += texto.charAt(i); }
+      i++; contenedorFondo.scrollTop = contenedorFondo.scrollHeight; setTimeout(escribir, velocidad);
+    } else if (callback) { setTimeout(callback, 200); }
+  }
+  escribir();
+}
+
+// ===== LÓGICA DE ANIMACIÓN =====
+const boton = document.getElementById("abrir");
+const sobre = document.getElementById("sobre");
+const pantallaInicial = document.getElementById("pantallaInicial");
+const pantallaCarta = document.getElementById("pantallaCarta");
+const libro = document.getElementById("libro");
+const hojaDerecha = document.getElementById("hojaDerecha");
+
+function iniciarApertura() {
+  boton.style.pointerEvents = "none"; sobre.style.pointerEvents = "none";
+  sobre.classList.add("abierto"); boton.style.opacity = "0"; 
+
+  setTimeout(() => {
+    pantallaInicial.classList.add("oculto");
+
+    setTimeout(() => {
+      pantallaInicial.style.display = "none"; pantallaCarta.style.display = "flex";
+      heartCanvas.width = hojaDerecha.clientWidth; heartCanvas.height = hojaDerecha.clientHeight;
+
+      setTimeout(()=>libro.classList.add("abierto"), 100);
+      
+      const esCelular = window.innerWidth <= 768;
+      // REDUJE la cantidad máxima de pétalos del corazón para evitar saturar el celular
+      generatePetals(esCelular ? 500 : 1200);
+      animateHeart();
+
+      const textoTitulo = "Kenini… ✨";
+      const textoMensaje = "En el poco tiempo que llevo de conocerte, me ha quedado clarísimo algo que no se puede fingir: tienes una luz muy especial.|Has demostrado tener algo que hoy en día escasea... una nobleza increíble, mucha dulzura y una vibra que simplemente transmite paz.|Y créeme, sé reconocer a una gran mujer cuando coincido con ella.||No te escribo esto con palabras vacías, sino con una intención muy franca.|Me cautiva la idea de descubrir todo lo que hay detrás de esa sonrisa tan bonita, conocer tus pensamientos, tus sueños, tu mundo.|Porque cuando alguien realmente vale la pena, no se improvisa... se le conquista con respeto, con detalles y con presencia.|Hoy no te escribo solo porque el calendario diga que es 14 de febrero… te escribo porque desde que te conocí, te ganaste mi atención.|Y cuando algo se siente tan auténtico, vale toda la pena explorarlo.||Feliz 14 de Febrero 💖|— Con intención, no por coincidencia.";
+
+      setTimeout(() => {
+        const elementoTitulo = document.getElementById("tituloCarta");
+        const elementoMensaje = document.getElementById("mensajeCarta");
+        efectoEscritura(elementoTitulo, textoTitulo, 60, () => {
+          efectoEscritura(elementoMensaje, textoMensaje, 35);
+        });
+      }, 1000);
+
+    }, 800); 
+  }, 1600); 
+}
+
+boton.onclick = iniciarApertura; sobre.onclick = iniciarApertura;
+
+</script>
+</body>
+</html>
